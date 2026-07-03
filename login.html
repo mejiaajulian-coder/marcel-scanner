@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcel Scanner — Acceso</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #090c10;
+    --bg2: #0d1117;
+    --bg3: #161b22;
+    --border: #21262d;
+    --gold: #d4a853;
+    --gold2: #f0c060;
+    --green: #00e676;
+    --red: #ff3d5a;
+    --yellow: #ffd600;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* FONDO ANIMADO */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(212,168,83,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,168,83,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+  }
+
+  .bg-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+  }
+
+  /* LOGO */
+  .logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 12px;
+    box-shadow: 0 0 30px rgba(212,168,83,0.3);
+  }
+
+  .logo-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold2);
+    letter-spacing: 0.05em;
+  }
+
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    backdrop-filter: blur(10px);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+
+  .tab {
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    font-family: var(--font);
+  }
+
+  .tab.active {
+    background: var(--bg2);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* FORM */
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--gold); }
+
+  .form-input::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    color: #000;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* MENSAJES */
+  .msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .msg.error { background: rgba(255,61,90,0.1); border: 1px solid rgba(255,61,90,0.3); color: var(--red); }
+  .msg.success { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(--green); }
+  .msg.warning { background: rgba(255,214,0,0.1); border: 1px solid rgba(255,214,0,0.3); color: var(--yellow); }
+  .msg.show { display: block; }
+
+  /* PANTALLA ESPERA */
+  .waiting-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .waiting-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: spin 3s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .waiting-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--yellow);
+  }
+
+  .waiting-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .waiting-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,214,0,0.1);
+    border: 1px solid rgba(255,214,0,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--yellow);
+    margin-top: 16px;
+  }
+
+  .waiting-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* PANTALLA RECHAZADO */
+  .rejected-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .rejected-icon { font-size: 48px; margin-bottom: 16px; }
+  .rejected-title { font-size: 18px; font-weight: 600; color: var(--red); margin-bottom: 8px; }
+  .rejected-text { font-size: 13px; color: var(--muted); }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .panel-section { display: none; }
+  .panel-section.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="container">
+  <div class="logo-area">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-name">MARCEL SCANNER</div>
+    <div class="logo-sub">v1.0 PRO · Acceso Privado</div>
+  </div>
+
+  <div class="card">
+
+    <!-- FORMULARIO LOGIN/REGISTRO -->
+    <div id="authSection" class="panel-section active">
+      <div class="card-title">Bienvenido</div>
+      <div class="card-sub">Acceso exclusivo para miembros autorizados</div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('login')">Iniciar sesión</button>
+        <button class="tab" onclick="switchTab('register')">Solicitar acceso</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="form-input" type="email" id="loginEmail" placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONTRASEÑA</label>
+          <input class="form-input" type="password" id="loginPass" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="login()">ENTRAR AL SCANNER</button>
+        <div class="msg error" id="loginError"></div>
+      </div>
+
+      <!-- REGISTRO -->
+      <div id="registerForm" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">NOMBRE COMPLETO</label>
+          <input class="form-input" type="text" id="regNombre" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="form-input" type="email" id="regEmail" placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONTRASEÑA</label>
+          <input class="form-input" type="password" id="regPass" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button class="btn-primary" onclick="register()">ENVIAR SOLICITUD</button>
+        <div class="msg error" id="regError"></div>
+        <div class="msg success" id="regSuccess"></div>
+      </div>
+    </div>
+
+    <!-- PANTALLA ESPERA -->
+    <div id="waitingSection" class="panel-section">
+      <div class="waiting-screen" style="display:block;">
+        <div class="waiting-icon">⏳</div>
+        <div class="waiting-title">Solicitud enviada</div>
+        <div class="waiting-text">Tu cuenta está pendiente de aprobación.<br>El administrador revisará tu solicitud pronto.</div>
+        <div class="waiting-badge">
+          <div class="waiting-dot"></div>
+          ESPERANDO APROBACIÓN
+        </div>
+        <br><br>
+        <button class="btn-primary" style="background: var(--bg3); color: var(--muted); border: 1px solid var(--border);" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA RECHAZADO -->
+    <div id="rejectedSection" class="panel-section">
+      <div class="rejected-screen" style="display:block;">
+        <div class="rejected-icon">🚫</div>
+        <div class="rejected-title">Acceso denegado</div>
+        <div class="rejected-text">Tu solicitud fue rechazada por el administrador.<br>Contacta al equipo para más información.</div>
+        <br>
+        <button class="btn-primary" style="background: var(--bg3); color: var(--muted); border: 1px solid var(--border); margin-top:16px;" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">Marcel Scanner Pro · Acceso controlado por administrador</div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbOaEy_3m20JZXGoTuundUq3WJPOBJ Xco",
+    authDomain: "marcel-scanner.firebaseapp.com",
+    projectId: "marcel-scanner",
+    storageBucket: "marcel-scanner.firebasestorage.app",
+    messagingSenderId: "1084506082139",
+    appId: "1:1084506082139:web:af3cd7bb949bddfdf1687e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // TU EMAIL DE ADMIN — cámbialo por el tuyo
+  const ADMIN_EMAIL = "mejiaajulian@gmail.com";
+
+  function showSection(id) {
+    document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = `msg ${type} show`;
+  }
+
+  // VERIFICAR ESTADO AL CARGAR
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { showSection('authSection'); return; }
+
+    // Si es admin, ir al panel admin
+    if (user.email === ADMIN_EMAIL) {
+      window.location.href = 'admin.html'; return;
+    }
+
+    // Verificar estado en Firestore
+    const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+    if (!userDoc.exists()) { showSection('waitingSection'); return; }
+
+    const status = userDoc.data().status;
+    if (status === 'aprobado') { window.location.href = 'scanner.html'; }
+    else if (status === 'rechazado') { showSection('rejectedSection'); }
+    else { showSection('waitingSection'); }
+  });
+
+  // LOGIN
+  window.login = async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    if (!email || !pass) { showMsg('loginError', 'Completa todos los campos', 'error'); return; }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      const msgs = {
+        'auth/invalid-credential': 'Correo o contraseña incorrectos',
+        'auth/user-not-found': 'Usuario no encontrado',
+        'auth/wrong-password': 'Contraseña incorrecta',
+        'auth/too-many-requests': 'Demasiados intentos. Espera un momento'
+      };
+      showMsg('loginError', msgs[e.code] || 'Error al iniciar sesión', 'error');
+    }
+  };
+
+  // REGISTRO
+  window.register = async () => {
+    const nombre = document.getElementById('regNombre').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPass').value;
+
+    if (!nombre || !email || !pass) { showMsg('regError', 'Completa todos los campos', 'error'); return; }
+    if (pass.length < 6) { showMsg('regError', 'La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await setDoc(doc(db, 'usuarios', cred.user.uid), {
+        nombre, email, status: 'pendiente',
+        createdAt: serverTimestamp()
+      });
+      showMsg('regSuccess', '✓ Solicitud enviada. Espera aprobación del administrador.', 'success');
+    } catch(e) {
+      const msgs = {
+        'auth/email-already-in-use': 'Este correo ya tiene una cuenta',
+        'auth/invalid-email': 'Correo inválido',
+        'auth/weak-password': 'Contraseña muy débil'
+      };
+      showMsg('regError', msgs[e.code] || 'Error al registrar', 'error');
+    }
+  };
+
+  // LOGOUT
+  window.logout = () => signOut(auth);
+
+  // TABS
+  window.switchTab = (tab) => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  };
+
+  // Enter key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const active = document.querySelector('.tab.active');
+      if (active?.textContent.includes('sesión')) window.login();
+      else window.register();
+    }
+  });
+</script>
+
+</body>
+</html>

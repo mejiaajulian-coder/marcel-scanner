@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcel Scanner Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #090c10;
+    --bg2: #0d1117;
+    --bg3: #161b22;
+    --border: #21262d;
+    --gold: #d4a853;
+    --gold2: #f0c060;
+    --green: #00e676;
+    --red: #ff3d5a;
+    --yellow: #ffd600;
+    --blue: #4fc3f7;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--gold2);
+  }
+
+  .logo-version {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    background: rgba(0,230,118,0.08);
+    border: 1px solid rgba(0,230,118,0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .clock {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    grid-template-rows: auto 1fr;
+    gap: 1px;
+    background: var(--border);
+    min-height: calc(100vh - 65px);
+  }
+
+  .panel {
+    background: var(--bg2);
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .panel-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ESTADO GENERAL */
+  .estado-card {
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid transparent;
+  }
+
+  .estado-verde {
+    background: rgba(0,230,118,0.06);
+    border-color: rgba(0,230,118,0.2);
+  }
+
+  .estado-rojo {
+    background: rgba(255,61,90,0.06);
+    border-color: rgba(255,61,90,0.2);
+  }
+
+  .estado-amarillo {
+    background: rgba(255,214,0,0.06);
+    border-color: rgba(255,214,0,0.2);
+  }
+
+  .estado-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+
+  .estado-valor {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .verde { color: var(--green); }
+  .rojo { color: var(--red); }
+  .amarillo { color: var(--yellow); }
+  .gold { color: var(--gold2); }
+  .blue { color: var(--blue); }
+
+  .estado-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  /* SCORE BAR */
+  .score-container {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .score-title {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .score-num {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gold2);
+  }
+
+  .score-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--red), var(--yellow), var(--green));
+    transition: width 0.5s ease;
+  }
+
+  /* CHECKLIST */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .check-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .check-ok { background: rgba(0,230,118,0.15); color: var(--green); }
+  .check-no { background: rgba(255,61,90,0.15); color: var(--red); }
+  .check-warn { background: rgba(255,214,0,0.15); color: var(--yellow); }
+
+  .check-label { flex: 1; color: var(--text); }
+  .check-val { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* NOTICIAS */
+  .noticia-card {
+    background: rgba(255,214,0,0.05);
+    border: 1px solid rgba(255,214,0,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .noticia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .noticia-impact {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+
+  .impact-alto { background: rgba(255,61,90,0.2); color: var(--red); }
+  .impact-medio { background: rgba(255,214,0,0.2); color: var(--yellow); }
+
+  .noticia-nombre {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .noticia-tiempo {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .countdown {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-top: 8px;
+  }
+
+  /* CENTRO - PRECIO Y SEÑAL */
+  .center-panel {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .price-area {
+    background: var(--bg2);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .price-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .price-symbol {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+  }
+
+  .price-value {
+    font-family: var(--mono);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold2);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .price-change {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+  }
+
+  .price-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    text-align: center;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* SEÑAL PRINCIPAL */
+  .signal-area {
+    background: var(--bg2);
+    padding: 24px;
+    flex: 1;
+  }
+
+  .signal-card {
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .signal-compra {
+    background: rgba(0,230,118,0.05);
+    border-color: rgba(0,230,118,0.25);
+  }
+
+  .signal-compra::before { background: var(--green); }
+
+  .signal-venta {
+    background: rgba(255,61,90,0.05);
+    border-color: rgba(255,61,90,0.25);
+  }
+
+  .signal-venta::before { background: var(--red); }
+
+  .signal-espera {
+    background: rgba(255,214,0,0.05);
+    border-color: rgba(255,214,0,0.25);
+  }
+
+  .signal-espera::before { background: var(--yellow); }
+
+  .signal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .signal-tipo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .signal-prob {
+    text-align: right;
+  }
+
+  .signal-prob-num {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold2);
+    line-height: 1;
+  }
+
+  .signal-prob-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* TP/SL */
+  .levels {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .level-item {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .level-label {
+    font-size: 9px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .level-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* IA REASONING */
+  .ia-box {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+  }
+
+  .ia-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ia-icon {
+    font-size: 14px;
+  }
+
+  .ia-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .ia-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c9d1d9;
+  }
+
+  /* CONFLUENCE GRID */
+  .confluence-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .conf-item {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .conf-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .conf-val {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+
+  .conf-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .conf-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--gold);
+  }
+
+  /* DERECHA - GESTIÓN DE RIESGO */
+  .risk-section {
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 10px;
+  }
+
+  .input-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: block;
+    font-family: var(--mono);
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus {
+    border-color: var(--gold);
+  }
+
+  .calc-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: #000;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: opacity 0.2s;
+    margin-top: 4px;
+  }
+
+  .calc-btn:hover { opacity: 0.9; }
+
+  .result-card {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-row:last-child { border-bottom: none; }
+
+  .result-key {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .result-val {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* CUENTA */
+  .cuenta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .cuenta-item {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .cuenta-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-family: var(--mono);
+  }
+
+  .cuenta-val {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* SESIONES */
+  .sesiones {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .sesion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .sesion-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+
+  .sesion-nombre {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .sesion-activa { background: var(--green); animation: pulse 1.5s infinite; }
+  .sesion-inactiva { background: var(--border); }
+
+  .sesion-hora {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .sesion-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+
+  .tag-activa { background: rgba(0,230,118,0.15); color: var(--green); }
+  .tag-inactiva { background: var(--bg); color: var(--muted); }
+
+  /* MTF */
+  .mtf-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .mtf-item {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 10px 6px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .mtf-tf {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .mtf-dir {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* FEED SEÑALES */
+  .feed-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .feed-compra { background: rgba(0,230,118,0.05); border-color: rgba(0,230,118,0.15); }
+  .feed-venta { background: rgba(255,61,90,0.05); border-color: rgba(255,61,90,0.15); }
+  .feed-espera { background: rgba(255,214,0,0.05); border-color: rgba(255,214,0,0.15); }
+  .feed-tipo { font-weight: 700; font-size: 10px; }
+  .feed-precio { color: var(--text); }
+  .feed-time { color: var(--muted); font-size: 10px; }
+  .feed-result { font-weight: 600; text-align: right; }
+
+  /* ALERTAS */
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+  }
+  .alert-warn { background: rgba(255,214,0,0.05); border-color: rgba(255,214,0,0.2); }
+  .alert-info { background: rgba(79,195,247,0.05); border-color: rgba(79,195,247,0.2); }
+  .alert-ok { background: rgba(0,230,118,0.05); border-color: rgba(0,230,118,0.15); }
+  .alert-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .alert-msg { color: var(--text); line-height: 1.4; }
+  .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 280px 1fr; }
+    .right-panel { display: none; }
+  }
+
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .left-panel { display: none; }
+    .price-value { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">MARCEL SCANNER</span>
+    <span class="logo-version">v1.0 PRO</span>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      EN VIVO
+    </div>
+    <div class="clock" id="clock">--:--:-- UTC-5</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- PANEL IZQUIERDO -->
+  <div class="panel left-panel">
+
+    <div class="panel-title">Estado General</div>
+
+    <div class="estado-card estado-amarillo" id="estadoCard">
+      <div class="estado-label">MERCADO ACTUAL</div>
+      <div class="estado-valor amarillo" id="estadoValor">⚠ ESPERAR</div>
+      <div class="estado-sub" id="estadoSub">Régimen: TRANSICIÓN · Score: 68/100</div>
+    </div>
+
+    <div class="score-container">
+      <div class="score-header">
+        <span class="score-title">Score de Confluencia</span>
+        <span class="score-num" id="scoreNum">68</span>
+      </div>
+      <div class="score-bar">
+        <div class="score-fill" id="scoreFill" style="width: 68%"></div>
+      </div>
+    </div>
+
+    <div class="panel-title">Checklist IA</div>
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-icon check-no">✕</div>
+        <span class="check-label">Tendencia real</span>
+        <span class="check-val">NO</span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon check-ok">✓</div>
+        <span class="check-label">Sin noticia bloqueante</span>
+        <span class="check-val">OK</span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon check-ok">✓</div>
+        <span class="check-label">Score suficiente</span>
+        <span class="check-val">OK</span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon check-ok">✓</div>
+        <span class="check-label">Spread correcto</span>
+        <span class="check-val">18.0</span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon check-ok">✓</div>
+        <span class="check-label">Solo oro</span>
+        <span class="check-val">OK</span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon check-warn">!</div>
+        <span class="check-label">Sesión activa</span>
+        <span class="check-val">NY</span>
+      </div>
+    </div>
+
+    <div class="panel-title">Próxima Noticia</div>
+    <div class="noticia-card">
+      <div class="noticia-header">
+        <span class="noticia-nombre">Nóminas No Agrícolas</span>
+        <span class="noticia-impact impact-alto">ALTO</span>
+      </div>
+      <div class="noticia-tiempo">Servidor: 15:30 · Colombia: 10:30</div>
+      <div class="countdown" id="countdown">⏱ 02:14:33</div>
+    </div>
+
+    <div class="panel-title">Sesiones</div>
+    <div class="sesiones">
+      <div class="sesion-item">
+        <div class="sesion-nombre">
+          <div class="sesion-dot sesion-inactiva"></div>
+          Asia
+        </div>
+        <span class="sesion-hora">20:00–04:00</span>
+        <span class="sesion-tag tag-inactiva">Cerrada</span>
+      </div>
+      <div class="sesion-item">
+        <div class="sesion-nombre">
+          <div class="sesion-dot sesion-inactiva"></div>
+          Londres
+        </div>
+        <span class="sesion-hora">03:00–11:00</span>
+        <span class="sesion-tag tag-inactiva">Cerrada</span>
+      </div>
+      <div class="sesion-item">
+        <div class="sesion-nombre">
+          <div class="sesion-dot sesion-activa"></div>
+          Nueva York
+        </div>
+        <span class="sesion-hora">08:00–16:00</span>
+        <span class="sesion-tag tag-activa">Activa</span>
+      </div>
+    </div>
+
+    <div class="panel-title">Multi-Timeframe</div>
+    <div class="mtf-grid">
+      <div class="mtf-item">
+        <div class="mtf-tf">M5</div>
+        <div class="mtf-dir rojo">BAJA</div>
+      </div>
+      <div class="mtf-item">
+        <div class="mtf-tf">M15</div>
+        <div class="mtf-dir amarillo">RANGO</div>
+      </div>
+      <div class="mtf-item">
+        <div class="mtf-tf">H1</div>
+        <div class="mtf-dir verde">ALZA</div>
+      </div>
+      <div class="mtf-item">
+        <div class="mtf-tf">H4</div>
+        <div class="mtf-dir verde">ALZA</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANEL CENTRAL -->
+  <div class="center-panel">
+
+    <div class="price-area">
+      <div class="price-main">
+        <div class="price-symbol">XAUUSD · M5 · VantageMarkets</div>
+        <div class="price-value" id="priceDisplay">3,328.45</div>
+        <div class="price-change" id="priceChange">▲ +12.30 (+0.37%)</div>
+      </div>
+      <div class="price-stats">
+        <div class="stat-item">
+          <span class="stat-label">ADX</span>
+          <span class="stat-val amarillo" id="adxVal">22.4</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">ATR</span>
+          <span class="stat-val blue" id="atrVal">8.77</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">RSI</span>
+          <span class="stat-val verde" id="rsiVal">54.2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="signal-area">
+
+      <div class="signal-card signal-espera" id="signalCard">
+        <div class="signal-top">
+          <div>
+            <div class="signal-tipo amarillo" id="signalTipo">⚠ ESPERAR</div>
+            <div style="font-size:12px; color: var(--muted); margin-top:4px;" id="signalDir">Dirección probable: ALCISTA</div>
+          </div>
+          <div class="signal-prob">
+            <div class="signal-prob-num" id="signalProb">68%</div>
+            <div class="signal-prob-label">Probabilidad</div>
+          </div>
+        </div>
+
+        <div class="levels" id="levelsGrid">
+          <div class="level-item">
+            <div class="level-label">ENTRADA</div>
+            <div class="level-val gold" id="lvlPE">3,331.20</div>
+          </div>
+          <div class="level-item">
+            <div class="level-label">SL</div>
+            <div class="level-val rojo" id="lvlSL">3,311.20</div>
+          </div>
+          <div class="level-item">
+            <div class="level-label">TP1</div>
+            <div class="level-val verde" id="lvlTP1">3,351.20</div>
+          </div>
+          <div class="level-item">
+            <div class="level-label">TP2</div>
+            <div class="level-val verde" id="lvlTP2">3,371.20</div>
+          </div>
+        </div>
+
+        <div class="ia-box">
+          <div class="ia-header">
+            <span class="ia-icon">🧠</span>
+            <span class="ia-title">Análisis de Mercado IA</span>
+          </div>
+          <div class="ia-text" id="iaText">
+            Mercado en transición. M5 y M15 en rango sin dirección clara. Aunque H1 y H4 muestran estructura alcista, la falta de CHoCH confirmado en M15 y el ADX bajo (22.4) indican momentum insuficiente. Noticia de alto impacto en 2h14m — alta probabilidad de movimiento agresivo pre-noticia. <strong style="color: var(--yellow)">Recomendación: esperar confirmación post-noticia antes de entrar.</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-title" style="margin-top: 8px;">Confluencias Técnicas</div>
+      <div class="confluence-grid">
+        <div class="conf-item">
+          <div class="conf-label">EMA 9/21 Cross</div>
+          <div class="conf-val amarillo">Neutral</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 45%; background: var(--yellow)"></div></div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-label">Order Block H4</div>
+          <div class="conf-val verde">Activo</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 80%; background: var(--green)"></div></div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-label">RSI Divergencia</div>
+          <div class="conf-val verde">Alcista</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 70%; background: var(--green)"></div></div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-label">Estructura BOS</div>
+          <div class="conf-val rojo">No confirmado</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 20%; background: var(--red)"></div></div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-label">Liquidez barrida</div>
+          <div class="conf-val verde">Sí</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 85%; background: var(--green)"></div></div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-label">CHoCH M15</div>
+          <div class="conf-val rojo">Pendiente</div>
+          <div class="conf-bar"><div class="conf-fill" style="width: 15%; background: var(--red)"></div></div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO DE PRECIO -->
+      <div class="panel-title" style="margin-top: 8px;">Gráfico de Precio en Tiempo Real</div>
+      <div style="background: var(--bg3); border-radius: 10px; border: 1px solid var(--border); padding: 12px; margin-bottom: 12px;">
+        <canvas id="priceChart" height="110" style="width:100%;display:block;"></canvas>
+      </div>
+
+      <!-- SEÑALES Y ALERTAS -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+
+        <div>
+          <div class="panel-title">Señales Recientes</div>
+          <div id="signalFeed" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+
+        <div>
+          <div class="panel-title">Alertas en Vivo</div>
+          <div id="alertFeed" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANEL DERECHO -->
+  <div class="panel right-panel">
+
+    <div class="panel-title">Cuenta y Riesgo</div>
+    <div class="cuenta-grid">
+      <div class="cuenta-item">
+        <div class="cuenta-label">BALANCE</div>
+        <div class="cuenta-val gold">$2,490.64</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">EQUITY</div>
+        <div class="cuenta-val verde">$2,490.64</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">RIESGO %</div>
+        <div class="cuenta-val amarillo">0.30%</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">MAX LOTE</div>
+        <div class="cuenta-val">0.05</div>
+      </div>
+    </div>
+
+    <div class="panel-title">Calculadora de Lotes</div>
+    <div class="risk-section">
+      <div class="input-group">
+        <label class="input-label">Balance ($)</label>
+        <input class="input-field" type="number" id="inputBalance" value="2490.64" placeholder="2490.64">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Riesgo (%)</label>
+        <input class="input-field" type="number" id="inputRiesgo" value="1" placeholder="1">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Stop Loss (pips)</label>
+        <input class="input-field" type="number" id="inputSL" value="20" placeholder="20">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Ratio R:R</label>
+        <input class="input-field" type="number" id="inputRR" value="2" placeholder="2">
+      </div>
+      <button class="calc-btn" onclick="calcular()">CALCULAR LOTE</button>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-row">
+          <span class="result-key">Lote sugerido</span>
+          <span class="result-val gold" id="resLote">0.12</span>
+        </div>
+        <div class="result-row">
+          <span class="result-key">Riesgo en $</span>
+          <span class="result-val rojo" id="resDolar">$24.91</span>
+        </div>
+        <div class="result-row">
+          <span class="result-key">TP potencial</span>
+          <span class="result-val verde" id="resGanancia">$49.81</span>
+        </div>
+        <div class="result-row">
+          <span class="result-key">Pips al TP</span>
+          <span class="result-val blue" id="resPips">40 pips</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-title">Rendimiento Sesión</div>
+    <div class="cuenta-grid">
+      <div class="cuenta-item">
+        <div class="cuenta-label">SEÑALES</div>
+        <div class="cuenta-val">7</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">WIN RATE</div>
+        <div class="cuenta-val verde">71%</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">PIPS NETOS</div>
+        <div class="cuenta-val verde">+84</div>
+      </div>
+      <div class="cuenta-item">
+        <div class="cuenta-label">P&L</div>
+        <div class="cuenta-val verde">+$38.20</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // RELOJ
+  function updateClock() {
+    const now = new Date();
+    const col = new Date(now.getTime() - 5 * 3600000);
+    const h = String(col.getUTCHours()).padStart(2,'0');
+    const m = String(col.getUTCMinutes()).padStart(2,'0');
+    const s = String(col.getUTCSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s} UTC-5`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // COUNTDOWN NOTICIA
+  let countdownSecs = 8073;
+  function updateCountdown() {
+    if (countdownSecs <= 0) return;
+    countdownSecs--;
+    const h = Math.floor(countdownSecs / 3600);
+    const m = Math.floor((countdownSecs % 3600) / 60);
+    const s = countdownSecs % 60;
+    document.getElementById('countdown').textContent =
+      `⏱ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  setInterval(updateCountdown, 1000);
+
+  // ALPHA VANTAGE - DATOS REALES
+  const API_KEY = 'AERM7IORQPQ6D24C';
+  let prevClose = null;
+  let lastPrice = null;
+
+  async function fetchXAUUSD() {
+    try {
+      // Precio en tiempo real (quote)
+      const quoteUrl = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=XAU&to_currency=USD&apikey=${API_KEY}`;
+      const res = await fetch(quoteUrl);
+      const data = await res.json();
+      const rate = data['Realtime Currency Exchange Rate'];
+      if (!rate) return;
+
+      const price = parseFloat(rate['5. Exchange Rate']);
+      const bidPrice = parseFloat(rate['8. Bid Price']);
+      const askPrice = parseFloat(rate['9. Ask Price']);
+      const spread = ((askPrice - bidPrice) * 10).toFixed(1);
+
+      if (lastPrice === null) lastPrice = price;
+      const change = price - lastPrice;
+      const pct = ((change / lastPrice) * 100).toFixed(2);
+
+      document.getElementById('priceDisplay').textContent =
+        price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      const arrow = change >= 0 ? '▲' : '▼';
+      const cls = change >= 0 ? 'verde' : 'rojo';
+      const el = document.getElementById('priceChange');
+      el.textContent = `${arrow} ${change >= 0 ? '+' : ''}${change.toFixed(2)} (${change >= 0 ? '+' : ''}${pct}%)`;
+      el.className = 'price-change ' + cls;
+
+      // Actualizar spread en checklist
+      const checkVals = document.querySelectorAll('.check-val');
+      checkVals.forEach(v => { if (v.textContent.includes('.') && parseFloat(v.textContent) > 5) v.textContent = spread; });
+
+      lastPrice = price;
+
+      // Actualizar gráfico
+      priceHistory.push(price);
+      if (priceHistory.length > 60) priceHistory.shift();
+      drawChart();
+
+      // Actualizar niveles TP/SL automáticamente
+      const sl = 20;
+      const tp1 = (price + sl).toFixed(2);
+      const tp2 = (price + sl * 2).toFixed(2);
+      const slVal = (price - sl).toFixed(2);
+      document.getElementById('lvlPE').textContent = price.toFixed(2);
+      document.getElementById('lvlSL').textContent = slVal;
+      document.getElementById('lvlTP1').textContent = tp1;
+      document.getElementById('lvlTP2').textContent = tp2;
+
+      // Análisis automático basado en precio real
+      updateAnalysis(price, change, spread);
+
+    } catch(e) {
+      console.error('Error Alpha Vantage:', e);
+    }
+  }
+
+  async function fetchIndicadores() {
+    try {
+      // RSI
+      const rsiUrl = `https://www.alphavantage.co/query?function=RSI&symbol=XAUUSD&interval=5min&time_period=14&series_type=close&apikey=${API_KEY}`;
+      const rsiRes = await fetch(rsiUrl);
+      const rsiData = await rsiRes.json();
+      const rsiValues = rsiData['Technical Analysis: RSI'];
+      if (rsiValues) {
+        const latestKey = Object.keys(rsiValues)[0];
+        const rsi = parseFloat(rsiValues[latestKey]['RSI']).toFixed(1);
+        document.getElementById('rsiVal').textContent = rsi;
+
+        const rsiEl = document.getElementById('rsiVal');
+        if (rsi > 70) { rsiEl.className = 'stat-val rojo'; }
+        else if (rsi < 30) { rsiEl.className = 'stat-val verde'; }
+        else { rsiEl.className = 'stat-val verde'; }
+      }
+    } catch(e) {
+      console.error('Error indicadores:', e);
+    }
+  }
+
+  function updateAnalysis(price, change, spread) {
+    const spreadNum = parseFloat(spread);
+    const iaText = document.getElementById('iaText');
+    const signalTipo = document.getElementById('signalTipo');
+    const signalProb = document.getElementById('signalProb');
+    const signalCard = document.getElementById('signalCard');
+    const estadoCard = document.getElementById('estadoCard');
+    const estadoValor = document.getElementById('estadoValor');
+    const scoreNum = document.getElementById('scoreNum');
+    const scoreFill = document.getElementById('scoreFill');
+
+    let score = 50;
+    let señal = 'ESPERAR';
+    let razon = '';
+
+    // Lógica de análisis básica con datos reales
+    if (spreadNum > 30) {
+      señal = 'NO OPERAR';
+      score = 20;
+      razon = `Spread muy elevado (${spread} pips). Condición de alta volatilidad o mercado ilíquido. Riesgo de slippage elevado.`;
+      signalCard.className = 'signal-card signal-venta';
+      estadoCard.className = 'estado-card estado-rojo';
+      estadoValor.className = 'estado-valor rojo';
+      estadoValor.textContent = '🔴 NO OPERAR';
+      signalTipo.className = 'signal-tipo rojo';
+    } else if (change > 1.5) {
+      señal = 'POSIBLE COMPRA';
+      score = 72;
+      razon = `Precio subiendo +${change.toFixed(2)} con spread aceptable (${spread} pips). Momentum alcista detectado. Esperar confirmación en M15 antes de entrar.`;
+      signalCard.className = 'signal-card signal-compra';
+      estadoCard.className = 'estado-card estado-verde';
+      estadoValor.className = 'estado-valor verde';
+      estadoValor.textContent = '🟢 OPERAR';
+      signalTipo.className = 'signal-tipo verde';
+    } else if (change < -1.5) {
+      señal = 'POSIBLE VENTA';
+      score = 68;
+      razon = `Precio cayendo ${change.toFixed(2)} con estructura bajista. Spread en ${spread} pips. Confirmar CHoCH en M15 antes de ejecutar.`;
+      signalCard.className = 'signal-card signal-venta';
+      estadoCard.className = 'estado-card estado-rojo';
+      estadoValor.className = 'estado-valor rojo';
+      estadoValor.textContent = '🔴 VENTA';
+      signalTipo.className = 'signal-tipo rojo';
+    } else {
+      señal = 'ESPERAR';
+      score = 55;
+      razon = `Precio en consolidación (cambio: ${change >= 0 ? '+' : ''}${change.toFixed(2)}). Spread: ${spread} pips. Sin momentum claro. Esperar ruptura de rango o señal de sesión NY/Londres.`;
+      signalCard.className = 'signal-card signal-espera';
+      estadoCard.className = 'estado-card estado-amarillo';
+      estadoValor.className = 'estado-valor amarillo';
+      estadoValor.textContent = '⚠ ESPERAR';
+      signalTipo.className = 'signal-tipo amarillo';
+    }
+
+    signalTipo.textContent = (señal === 'POSIBLE COMPRA' ? '▲ ' : señal === 'POSIBLE VENTA' ? '▼ ' : señal === 'NO OPERAR' ? '🚫 ' : '⚠ ') + señal;
+    signalProb.textContent = score + '%';
+    scoreNum.textContent = score;
+    scoreFill.style.width = score + '%';
+    document.getElementById('estadoSub').textContent = `Régimen: TIEMPO REAL · Score: ${score}/100`;
+    iaText.innerHTML = razon;
+
+    // Disparar alerta según señal
+    if (señal === 'POSIBLE COMPRA') addAlerta('▲', `Señal COMPRA detectada en ${price.toFixed(2)}`, 'alert-ok');
+    else if (señal === 'POSIBLE VENTA') addAlerta('▼', `Señal VENTA detectada en ${price.toFixed(2)}`, 'alert-warn');
+    else if (señal === 'NO OPERAR') addAlerta('🚫', `Spread alto (${spread} pips) — mercado bloqueado`, 'alert-warn');
+  }
+
+  // Seed del gráfico con datos simulados mientras carga la API
+  let seedPrice = 3316.0;
+  for (let i = 0; i < 40; i++) {
+    seedPrice += (Math.random() - 0.48) * 1.2;
+    priceHistory.push(parseFloat(seedPrice.toFixed(2)));
+  }
+  drawChart();
+
+  // Fetch inmediato y luego cada 60s (límite API gratuita)
+  fetchXAUUSD();
+  setInterval(fetchXAUUSD, 60000);
+
+  // Indicadores cada 5 minutos (límite API gratuita)
+  setTimeout(() => {
+    fetchIndicadores();
+    setInterval(fetchIndicadores, 300000);
+  }, 3000);
+
+  // GRÁFICO DE PRECIO
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+  let priceHistory = [];
+  let chartWidth, chartHeight;
+
+  function resizeCanvas() {
+    chartWidth = canvas.parentElement.clientWidth - 24;
+    canvas.width = chartWidth;
+    canvas.height = 110;
+    chartHeight = 110;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function drawChart() {
+    if (priceHistory.length < 2) return;
+    ctx.clearRect(0, 0, chartWidth, chartHeight);
+
+    const min = Math.min(...priceHistory) - 0.5;
+    const max = Math.max(...priceHistory) + 0.5;
+    const range = max - min || 1;
+    const pad = { top: 10, bottom: 20, left: 50, right: 10 };
+    const w = chartWidth - pad.left - pad.right;
+    const h = chartHeight - pad.top - pad.bottom;
+
+    // Grid lines
+    ctx.strokeStyle = '#21262d';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + (h / 4) * i;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + w, y); ctx.stroke();
+      const val = (max - (range / 4) * i).toFixed(2);
+      ctx.fillStyle = '#8b949e';
+      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.fillText(val, 2, y + 3);
+    }
+
+    // Price line
+    const last = priceHistory[priceHistory.length - 1];
+    const first = priceHistory[0];
+    const lineColor = last >= first ? '#00e676' : '#ff3d5a';
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + h);
+    grad.addColorStop(0, last >= first ? 'rgba(0,230,118,0.2)' : 'rgba(255,61,90,0.2)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+    ctx.beginPath();
+    priceHistory.forEach((p, i) => {
+      const x = pad.left + (i / (priceHistory.length - 1)) * w;
+      const y = pad.top + h - ((p - min) / range) * h;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Fill
+    ctx.lineTo(pad.left + w, pad.top + h);
+    ctx.lineTo(pad.left, pad.top + h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Last price dot
+    const lastX = pad.left + w;
+    const lastY = pad.top + h - ((last - min) / range) * h;
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = lineColor;
+    ctx.fill();
+  }
+
+  // SEÑALES RECIENTES - datos iniciales
+  const señalesData = [
+    { tipo: 'COMPRA', precio: '3,318.40', hora: '09:14', result: '+22 pips', ok: true },
+    { tipo: 'VENTA',  precio: '3,342.10', hora: '10:02', result: '+18 pips', ok: true },
+    { tipo: 'COMPRA', precio: '3,325.80', hora: '10:45', result: '-12 pips', ok: false },
+    { tipo: 'ESPERAR',precio: '3,328.45', hora: '17:31', result: 'En curso', ok: null },
+  ];
+
+  function renderSignalFeed() {
+    const feed = document.getElementById('signalFeed');
+    feed.innerHTML = señalesData.slice(-6).reverse().map(s => {
+      const cls = s.tipo === 'COMPRA' ? 'feed-compra' : s.tipo === 'VENTA' ? 'feed-venta' : 'feed-espera';
+      const arrow = s.tipo === 'COMPRA' ? '▲' : s.tipo === 'VENTA' ? '▼' : '⚠';
+      const resCls = s.ok === true ? 'verde' : s.ok === false ? 'rojo' : 'amarillo';
+      return `<div class="feed-item ${cls}">
+        <span class="feed-tipo ${s.ok === true ? 'verde' : s.ok === false ? 'rojo' : 'amarillo'}">${arrow} ${s.tipo}</span>
+        <span class="feed-precio">${s.precio}</span>
+        <span class="feed-time">${s.hora}</span>
+        <span class="feed-result ${resCls}">${s.result}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ALERTAS - datos iniciales
+  const alertasData = [
+    { icon: '⚠', msg: 'Noticia de alto impacto en 2h 14m', time: '17:31:06', tipo: 'alert-warn' },
+    { icon: '📊', msg: 'Sesión NY activa — mayor liquidez', time: '08:00:00', tipo: 'alert-info' },
+    { icon: '✓',  msg: 'Spread normalizado: 18.0 pips',    time: '17:28:14', tipo: 'alert-ok' },
+    { icon: '🔴', msg: 'BOS no confirmado — esperar',       time: '17:25:40', tipo: 'alert-warn' },
+  ];
+
+  function renderAlertFeed() {
+    const feed = document.getElementById('alertFeed');
+    feed.innerHTML = alertasData.slice(-6).map(a =>
+      `<div class="alert-item ${a.tipo}">
+        <span class="alert-icon">${a.icon}</span>
+        <div class="alert-content">
+          <div class="alert-msg">${a.msg}</div>
+          <div class="alert-time">${a.time}</div>
+        </div>
+      </div>`
+    ).join('');
+  }
+
+  function addAlerta(icon, msg, tipo) {
+    const now = new Date();
+    const col = new Date(now.getTime() - 5*3600000);
+    const t = `${String(col.getUTCHours()).padStart(2,'0')}:${String(col.getUTCMinutes()).padStart(2,'0')}:${String(col.getUTCSeconds()).padStart(2,'0')}`;
+    alertasData.unshift({ icon, msg, time: t, tipo });
+    if (alertasData.length > 10) alertasData.pop();
+    renderAlertFeed();
+  }
+
+  renderSignalFeed();
+  renderAlertFeed();
+
+  // CALCULADORA
+  function calcular() {
+    const balance = parseFloat(document.getElementById('inputBalance').value) || 0;
+    const riesgo = parseFloat(document.getElementById('inputRiesgo').value) / 100 || 0.01;
+    const sl = parseFloat(document.getElementById('inputSL').value) || 20;
+    const rr = parseFloat(document.getElementById('inputRR').value) || 2;
+
+    const riesgoDolar = balance * riesgo;
+    const valorPipXAU = 1; // Para XAUUSD: $1 por pip por lote
+    const lote = (riesgoDolar / (sl * 10)).toFixed(2);
+    const ganancia = (riesgoDolar * rr).toFixed(2);
+    const tpPips = sl * rr;
+
+    document.getElementById('resLote').textContent = lote;
+    document.getElementById('resDolar').textContent = `$${riesgoDolar.toFixed(2)}`;
+    document.getElementById('resGanancia').textContent = `$${ganancia}`;
+    document.getElementById('resPips').textContent = `${tpPips} pips`;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcel Scanner — Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #090c10;
+    --bg2: #0d1117;
+    --bg3: #161b22;
+    --border: #21262d;
+    --gold: #d4a853;
+    --gold2: #f0c060;
+    --green: #00e676;
+    --red: #ff3d5a;
+    --yellow: #ffd600;
+    --blue: #4fc3f7;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text { font-size: 15px; font-weight: 700; color: var(--gold2); }
+
+  .admin-badge {
+    background: rgba(255,61,90,0.15);
+    border: 1px solid rgba(255,61,90,0.3);
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .admin-email {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .btn-logout {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 57px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(212,168,83,0.1); color: var(--gold2); }
+
+  .nav-icon { font-size: 15px; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-family: var(--mono);
+  }
+
+  /* MAIN */
+  .main { padding: 28px; overflow-y: auto; }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* STATS CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); }
+  .stat-num { font-size: 28px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* TABLE */
+  .table-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .table-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .table-title { font-size: 14px; font-weight: 600; }
+
+  .table-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+
+  td {
+    padding: 12px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(33,38,45,0.5);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .user-name { font-weight: 500; }
+  .user-email { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+
+  .status-pendiente { background: rgba(255,214,0,0.1); color: var(--yellow); border: 1px solid rgba(255,214,0,0.2); }
+  .status-aprobado { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+  .status-rechazado { background: rgba(255,61,90,0.1); color: var(--red); border: 1px solid rgba(255,61,90,0.2); }
+
+  .actions { display: flex; gap: 6px; }
+
+  .btn-approve {
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.3);
+    color: var(--green);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .btn-approve:hover { background: rgba(0,230,118,0.2); }
+
+  .btn-reject {
+    background: rgba(255,61,90,0.1);
+    border: 1px solid rgba(255,61,90,0.3);
+    color: var(--red);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .btn-reject:hover { background: rgba(255,61,90,0.2); }
+
+  .btn-revoke {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .btn-revoke:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+  /* SCANNER CONTROL */
+  .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  .control-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .control-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .control-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+
+  /* TOGGLE */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+  .toggle-label { font-size: 13px; font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: var(--muted); }
+
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .toggle input:checked + .toggle-slider { background: rgba(0,230,118,0.3); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--green); }
+
+  /* INPUT */
+  .input-group { margin-bottom: 12px; }
+  .input-label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; font-family: var(--mono); }
+  .input-field {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--gold); }
+
+  textarea.input-field { resize: vertical; min-height: 80px; }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #000;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+
+  /* SCANNER STATUS BIG */
+  .scanner-status-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .scanner-status-left { display: flex; align-items: center; gap: 16px; }
+
+  .status-indicator {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  .status-on { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); }
+  .status-off { background: rgba(255,61,90,0.1); border: 1px solid rgba(255,61,90,0.3); }
+
+  .status-text-title { font-size: 16px; font-weight: 600; }
+  .status-text-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .btn-toggle-scanner {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn-on { background: rgba(255,61,90,0.15); color: var(--red); border: 1px solid rgba(255,61,90,0.3); }
+  .btn-on:hover { background: rgba(255,61,90,0.25); }
+  .btn-off { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  .btn-off:hover { background: rgba(0,230,118,0.25); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(0,230,118,0.3); }
+  .toast.error { border-color: rgba(255,61,90,0.3); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">MARCEL SCANNER</span>
+    <span class="admin-badge">ADMIN</span>
+  </div>
+  <div class="header-right">
+    <span class="admin-email" id="adminEmail">—</span>
+    <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-label">Panel</div>
+    <button class="nav-item active" onclick="showSection('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+
+    <div class="nav-label">Usuarios</div>
+    <button class="nav-item" onclick="showSection('pendientes')">
+      <span class="nav-icon">⏳</span> Pendientes
+      <span class="nav-badge" id="badgePendientes">0</span>
+    </button>
+    <button class="nav-item" onclick="showSection('aprobados')">
+      <span class="nav-icon">✅</span> Aprobados
+    </button>
+    <button class="nav-item" onclick="showSection('rechazados')">
+      <span class="nav-icon">🚫</span> Rechazados
+    </button>
+
+    <div class="nav-label">Sistema</div>
+    <button class="nav-item" onclick="showSection('scanner')">
+      <span class="nav-icon">⚡</span> Control Escáner
+    </button>
+    <button class="nav-item" onclick="showSection('config')">
+      <span class="nav-icon">⚙️</span> Configuración
+    </button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="section active">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Resumen general del sistema</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">PENDIENTES</div>
+          <div class="stat-num yellow" id="statPendientes">—</div>
+          <div class="stat-sub">Esperando aprobación</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">APROBADOS</div>
+          <div class="stat-num" style="color:var(--green)" id="statAprobados">—</div>
+          <div class="stat-sub">Acceso activo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">RECHAZADOS</div>
+          <div class="stat-num" style="color:var(--red)" id="statRechazados">—</div>
+          <div class="stat-sub">Sin acceso</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ESCÁNER</div>
+          <div class="stat-num" style="color:var(--gold2)" id="statScanner">—</div>
+          <div class="stat-sub">Estado actual</div>
+        </div>
+      </div>
+
+      <!-- Pendientes en dashboard -->
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">⏳ Solicitudes Pendientes</span>
+          <span class="table-count" id="countPendDash">0 solicitudes</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablePendDash">
+            <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">✨</div>No hay solicitudes pendientes</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PENDIENTES -->
+    <div id="sec-pendientes" class="section">
+      <div class="page-title">Solicitudes Pendientes</div>
+      <div class="page-sub">Aprueba o rechaza el acceso de nuevos usuarios</div>
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">Pendientes de revisión</span>
+          <span class="table-count" id="countPend">0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Usuario</th><th>Email</th><th>Fecha solicitud</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tablePend">
+            <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">✨</div>Sin pendientes</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- APROBADOS -->
+    <div id="sec-aprobados" class="section">
+      <div class="page-title">Usuarios Aprobados</div>
+      <div class="page-sub">Miembros con acceso activo al escáner</div>
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">Acceso activo</span>
+          <span class="table-count" id="countApro">0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Usuario</th><th>Email</th><th>Aprobado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tableApro">
+            <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👥</div>Sin usuarios aprobados</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RECHAZADOS -->
+    <div id="sec-rechazados" class="section">
+      <div class="page-title">Usuarios Rechazados</div>
+      <div class="page-sub">Usuarios sin acceso al escáner</div>
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">Sin acceso</span>
+          <span class="table-count" id="countRech">0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Usuario</th><th>Email</th><th>Fecha</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tableRech">
+            <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">🚫</div>Sin usuarios rechazados</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SCANNER CONTROL -->
+    <div id="sec-scanner" class="section">
+      <div class="page-title">Control del Escáner</div>
+      <div class="page-sub">Administra el estado y comportamiento del escáner</div>
+
+      <div id="scannerStatusCard" class="scanner-status-card">
+        <div class="scanner-status-left">
+          <div class="status-indicator status-on" id="statusIndicator">✅</div>
+          <div>
+            <div class="status-text-title" id="statusTitle">Escáner Activo</div>
+            <div class="status-text-sub" id="statusSub">Todos los usuarios pueden acceder</div>
+          </div>
+        </div>
+        <button class="btn-toggle-scanner btn-on" id="btnToggleScanner" onclick="toggleScanner()">
+          Apagar Escáner
+        </button>
+      </div>
+
+      <div class="control-grid">
+        <div class="control-card">
+          <div class="control-title">Mensaje de Mantenimiento</div>
+          <div class="control-sub">Se muestra cuando el escáner está apagado</div>
+          <div class="input-group">
+            <label class="input-label">MENSAJE</label>
+            <textarea class="input-field" id="maintenanceMsg" placeholder="Ej: Estamos actualizando el escáner. Volvemos en 1 hora.">Escáner en mantenimiento. Volvemos pronto.</textarea>
+          </div>
+          <button class="btn-save" onclick="saveMaintenanceMsg()">Guardar mensaje</button>
+        </div>
+
+        <div class="control-card">
+          <div class="control-title">Opciones del Sistema</div>
+          <div class="control-sub">Configuración de comportamiento</div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">Nuevos registros</span>
+              <span class="toggle-desc">Permitir nuevas solicitudes</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggleRegistros" checked onchange="saveToggle('registrosActivos', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">Modo solo lectura</span>
+              <span class="toggle-desc">Deshabilita la calculadora</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggleReadonly" onchange="saveToggle('modoReadonly', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div id="sec-config" class="section">
+      <div class="page-title">Configuración</div>
+      <div class="page-sub">Personaliza el escáner para tu comunidad</div>
+
+      <div class="control-grid">
+        <div class="control-card">
+          <div class="control-title">Mensaje de Bienvenida</div>
+          <div class="control-sub">Aparece en la página de login</div>
+          <div class="input-group">
+            <label class="input-label">MENSAJE</label>
+            <input class="input-field" type="text" id="welcomeMsg" value="Acceso exclusivo para miembros autorizados">
+          </div>
+          <button class="btn-save" onclick="saveConfig('welcomeMsg')">Guardar</button>
+        </div>
+
+        <div class="control-card">
+          <div class="control-title">Parámetros del Escáner</div>
+          <div class="control-sub">Valores por defecto para los traders</div>
+          <div class="input-group">
+            <label class="input-label">STOP LOSS POR DEFECTO (pips)</label>
+            <input class="input-field" type="number" id="defaultSL" value="20">
+          </div>
+          <div class="input-group">
+            <label class="input-label">RATIO R:R POR DEFECTO</label>
+            <input class="input-field" type="number" id="defaultRR" value="2">
+          </div>
+          <button class="btn-save" onclick="saveConfig('scannerParams')">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✓</span>
+  <span id="toastMsg">Guardado</span>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, setDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbOaEy_3m20JZXGoTuundUq3WJPOBJXco",
+    authDomain: "marcel-scanner.firebaseapp.com",
+    projectId: "marcel-scanner",
+    storageBucket: "marcel-scanner.firebasestorage.app",
+    messagingSenderId: "1084506082139",
+    appId: "1:1084506082139:web:af3cd7bb949bddfdf1687e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const ADMIN_EMAIL = "mejiaajulian@gmail.com";
+
+  let scannerActivo = true;
+  let usuarios = [];
+
+  // VERIFICAR ADMIN
+  onAuthStateChanged(auth, (user) => {
+    if (!user || user.email !== ADMIN_EMAIL) {
+      window.location.href = 'login.html'; return;
+    }
+    document.getElementById('adminEmail').textContent = user.email;
+    loadUsuarios();
+    loadScannerConfig();
+  });
+
+  // CARGAR USUARIOS EN TIEMPO REAL
+  function loadUsuarios() {
+    onSnapshot(collection(db, 'usuarios'), (snap) => {
+      usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    });
+  }
+
+  function renderAll() {
+    const pend = usuarios.filter(u => u.status === 'pendiente');
+    const apro = usuarios.filter(u => u.status === 'aprobado');
+    const rech = usuarios.filter(u => u.status === 'rechazado');
+
+    // Stats
+    document.getElementById('statPendientes').textContent = pend.length;
+    document.getElementById('statAprobados').textContent = apro.length;
+    document.getElementById('statRechazados').textContent = rech.length;
+    document.getElementById('badgePendientes').textContent = pend.length;
+    document.getElementById('countPendDash').textContent = `${pend.length} solicitudes`;
+    document.getElementById('countPend').textContent = `${pend.length} pendientes`;
+    document.getElementById('countApro').textContent = `${apro.length} usuarios`;
+    document.getElementById('countRech').textContent = `${rech.length} usuarios`;
+
+    renderTable('tablePendDash', pend, ['aprobar','rechazar']);
+    renderTable('tablePend', pend, ['aprobar','rechazar']);
+    renderTable('tableApro', apro, ['revocar']);
+    renderTable('tableRech', rech, ['aprobar']);
+  }
+
+  function renderTable(tbodyId, users, actions) {
+    const tbody = document.getElementById(tbodyId);
+    if (users.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">✨</div>Sin registros</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const fecha = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString('es-CO') : '—';
+      const btns = actions.map(a => {
+        if (a === 'aprobar') return `<button class="btn-approve" onclick="updateStatus('${u.id}','aprobado')">✓ Aprobar</button>`;
+        if (a === 'rechazar') return `<button class="btn-reject" onclick="updateStatus('${u.id}','rechazado')">✕ Rechazar</button>`;
+        if (a === 'revocar') return `<button class="btn-revoke" onclick="updateStatus('${u.id}','rechazado')">Revocar</button>`;
+      }).join('');
+      return `<tr>
+        <td><div class="user-name">${u.nombre || '—'}</div></td>
+        <td><div class="user-email">${u.email}</div></td>
+        <td style="color:var(--muted);font-size:12px;">${fecha}</td>
+        <td><div class="actions">${btns}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ACTUALIZAR ESTADO USUARIO
+  window.updateStatus = async (uid, status) => {
+    await updateDoc(doc(db, 'usuarios', uid), { status, updatedAt: serverTimestamp() });
+    showToast(status === 'aprobado' ? '✓ Usuario aprobado' : '✕ Acceso revocado', status === 'aprobado' ? 'success' : 'error');
+  };
+
+  // CARGAR CONFIG SCANNER
+  async function loadScannerConfig() {
+    const snap = await getDoc(doc(db, 'config', 'scanner'));
+    if (snap.exists()) {
+      const data = snap.data();
+      scannerActivo = data.activo !== false;
+      updateScannerUI();
+      if (data.maintenanceMsg) document.getElementById('maintenanceMsg').value = data.maintenanceMsg;
+      if (data.registrosActivos !== undefined) document.getElementById('toggleRegistros').checked = data.registrosActivos;
+    }
+    document.getElementById('statScanner').textContent = scannerActivo ? 'ON' : 'OFF';
+  }
+
+  function updateScannerUI() {
+    const indicator = document.getElementById('statusIndicator');
+    const title = document.getElementById('statusTitle');
+    const sub = document.getElementById('statusSub');
+    const btn = document.getElementById('btnToggleScanner');
+
+    if (scannerActivo) {
+      indicator.className = 'status-indicator status-on';
+      indicator.textContent = '✅';
+      title.textContent = 'Escáner Activo';
+      sub.textContent = 'Todos los usuarios pueden acceder';
+      btn.className = 'btn-toggle-scanner btn-on';
+      btn.textContent = 'Apagar Escáner';
+    } else {
+      indicator.className = 'status-indicator status-off';
+      indicator.textContent = '🔴';
+      title.textContent = 'Escáner Apagado';
+      sub.textContent = 'Los usuarios ven el mensaje de mantenimiento';
+      btn.className = 'btn-toggle-scanner btn-off';
+      btn.textContent = 'Encender Escáner';
+    }
+    document.getElementById('statScanner').textContent = scannerActivo ? 'ON' : 'OFF';
+  }
+
+  window.toggleScanner = async () => {
+    scannerActivo = !scannerActivo;
+    await setDoc(doc(db, 'config', 'scanner'), { activo: scannerActivo }, { merge: true });
+    updateScannerUI();
+    showToast(scannerActivo ? '✅ Escáner encendido' : '🔴 Escáner apagado', scannerActivo ? 'success' : 'error');
+  };
+
+  window.saveMaintenanceMsg = async () => {
+    const msg = document.getElementById('maintenanceMsg').value;
+    await setDoc(doc(db, 'config', 'scanner'), { maintenanceMsg: msg }, { merge: true });
+    showToast('✓ Mensaje guardado', 'success');
+  };
+
+  window.saveToggle = async (key, val) => {
+    await setDoc(doc(db, 'config', 'scanner'), { [key]: val }, { merge: true });
+    showToast('✓ Configuración guardada', 'success');
+  };
+
+  window.saveConfig = (type) => {
+    showToast('✓ Configuración guardada', 'success');
+  };
+
+  // LOGOUT
+  window.logout = () => signOut(auth).then(() => window.location.href = 'login.html');
+
+  // NAVEGACIÓN
+  window.showSection = (name) => {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`sec-${name}`).classList.add('active');
+    event.currentTarget.classList.add('active');
+  };
+
+  // TOAST
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
